@@ -1,0 +1,5 @@
+pandas
+numpy
+seaborn
+-e .
+# whenever the packages are run, it should build these also
