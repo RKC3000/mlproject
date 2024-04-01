@@ -28,20 +28,19 @@ class DataTransformation:
 
     def get_data_transformer_object(self):
         """
-        This function is responsible for data Transformation
-        """
+        This function si responsible for data trnasformation
 
+        """
         try:
             numerical_columns = ["writing_score", "reading_score"]
             categorical_columns = [
                 "gender",
                 "race_ethnicity",
-                "parental_level_education",
+                "parental_level_of_education",
                 "lunch",
                 "test_preparation_course",
             ]
 
-            # we will make a pipeline, and there were missing values, so we need to handle that also
             num_pipeline = Pipeline(
                 steps=[
                     ("imputer", SimpleImputer(strategy="median")),
@@ -51,36 +50,29 @@ class DataTransformation:
 
             cat_pipeline = Pipeline(
                 steps=[
-                    (
-                        "imputer",
-                        SimpleImputer(strategy="most_frequent"),
-                    ),  # missing values get handled
-                    ("one_hot_encoder", OneHotEncoder()),  # one hot encoding
-                    ("scaler", StandardScaler()),
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("one_hot_encoder", OneHotEncoder()),
+                    ("scaler", StandardScaler(with_mean=False)),
                 ]
             )
-            logging.info(f"Categorical columns: {categorical_columns}")
 
+            logging.info(f"Categorical columns: {categorical_columns}")
             logging.info(f"Numerical columns: {numerical_columns}")
 
-            # combine the two pipelines into one
             preprocessor = ColumnTransformer(
                 [
-                    (
-                        "num_pipeline",
-                        num_pipeline,
-                        numerical_columns,
-                    )(  # ("Pipeline name", pipeline, column)
-                        "cat_pipeline", cat_pipeline, categorical_columns
-                    ),
+                    ("num_pipeline", num_pipeline, numerical_columns),
+                    ("cat_pipelines", cat_pipeline, categorical_columns),
                 ]
             )
 
             return preprocessor
+
         except Exception as e:
             raise CustomException(e, sys)
 
     def initiate_data_transformation(self, train_path, test_path):
+
         try:
             train_df = pd.read_csv(train_path)
             test_df = pd.read_csv(test_path)
@@ -107,15 +99,14 @@ class DataTransformation:
             input_feature_train_arr = preprocessing_obj.fit_transform(
                 input_feature_train_df
             )
-            input_feature_test_arr = preprocessing_obj.fit_transform(
-                input_feature_test_df
-            )
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
 
-            train_arr = np.c_[input_feature_arr, np.array(target_feature_train_df)]
-
+            train_arr = np.c_[
+                input_feature_train_arr, np.array(target_feature_train_df)
+            ]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
 
-            logging.info(f"Saved transformation object.")
+            logging.info(f"Saved preprocessing object.")
 
             save_object(
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
