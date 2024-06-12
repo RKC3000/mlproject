@@ -67,7 +67,7 @@ if __name__ == "__main__":
     train_data, test_data = obj.initiate_data_ingestion()  # Data Ingestion
 
     data_transformation = DataTransformation()
-    train_arr, test_arr = data_transformation.initiate_data_transformation(
+    train_arr, test_arr, _ = data_transformation.initiate_data_transformation(
         train_data, test_data
     )  # Data Transformation
 
