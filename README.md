@@ -11,3 +11,6 @@ conda activate venv/
 # to install the libraries needed in the project
 
 pip install -r requirements.txt
+
+# to deactivate the environment
+conda deacticate
